@@ -2,7 +2,7 @@
 ///
 /// Takes the following arguments:
 ///
-/// - `ident`: name of the public function that gets created
+/// - `fsort`: name of the public function that gets created
 /// - `n`: number of elements in the array
 /// - `swaps`: elements to be compared in order. Must be grouped by operations that can be executed
 ///    in parallel.
@@ -95,21 +95,26 @@
 /// ```
 #[macro_export]
 macro_rules! gen_sortnet {
-    ($fsort:ident, $n:expr, []) => {
-        #[inline(always)]
-        pub fn $fsort<T>(_arr: &mut [T; $n])
-        where
-            T: PartialOrd,
-        {}
-    };
-
     ($fsort:ident, $n:expr, [$([$(($swap_a:expr, $swap_b:expr)),+]),*]) => {
+        $crate::__gen_sortnet_inner!($fsort, $n, stringify!($n), [$([$(($swap_a, $swap_b)),+]),*]);
+    };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __gen_sortnet_inner {
+    ($fsort:ident, $n:expr, $n_str:expr, [$([$(($swap_a:expr, $swap_b:expr)),+]),*]) => {
+        #[doc="Sortnet-based sorting for arrays with "]
+        #[doc=$n_str]
+        #[doc=" elements."]
         pub fn $fsort<T>(arr: &mut [T; $n])
         where
             T: PartialOrd,
         {
+            #[allow(unused_imports)]
             use static_assertions::const_assert;
 
+            #[allow(dead_code)]
             #[inline(always)]
             pub fn maybe_swap<T>(arr: &mut [T; $n], a: usize, b: usize)
             where
@@ -120,7 +125,8 @@ macro_rules! gen_sortnet {
                 }
             }
 
-            let mut arr = arr;
+            #[allow(unused_mut, unused_variables)] let mut arr = arr;
+
             $($(
             const_assert!($swap_a < $n);
             const_assert!($swap_b < $n);
