@@ -1,0 +1,16 @@
+[package]
+name = "sortnet"
+version = "0.1.0"
+authors = ["Marco Neumann <marco@crepererum.net>"]
+edition = "2018"
+
+[dependencies]
+arrayref = "0.3"
+
+[dev-dependencies]
+criterion = "0.3"
+itertools = "0.8"
+
+[[bench]]
+name = "bench"
+harness = false
